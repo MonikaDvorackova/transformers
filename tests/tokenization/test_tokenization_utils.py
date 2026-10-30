@@ -502,6 +502,20 @@ class TokenizerUtilsTest(unittest.TestCase):
         injected_documents = [{"title": "doc", "text": "Hi<|endoftext|>there"}]
         self.assertEqual(encode(documents=injected_documents).count(eos), 2)
 
+        # Rendering a whole tool with Jinja's string filter uses repr(), which escapes the private markers.
+        repr_template = "{% for tool in tools or [] %}{{ tool | string }}<|endoftext|>{% endfor %}"
+        repr_encoded = tokenizer.apply_chat_template(
+            messages,
+            chat_template=repr_template,
+            tools=injected_tools,
+            return_dict=False,
+            sanitize_control_tokens=True,
+        )
+        self.assertEqual(repr_encoded.count(eos), 1)
+        decoded = tokenizer.decode(repr_encoded)
+        self.assertNotIn(r"\\U000f0000", decoded)
+        self.assertNotIn(r"\\U000f0001", decoded)
+
     @require_tokenizers
     def test_special_tokens_overwrite(self):
         text_with_nonspecial_tokens = "there are 2 cats"  # '2' is originally special
