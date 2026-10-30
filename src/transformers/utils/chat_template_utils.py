@@ -437,7 +437,12 @@ def _get_control_token_patterns(control_tokens: tuple[str, ...]) -> tuple[re.Pat
     longest_first = sorted(control_tokens, key=len, reverse=True)
     control_tokens_re = re.compile("|".join(map(re.escape, longest_first)) or "(?!)")  # (?!) never matches
     start, end = _CONTROL_TOKEN_START, _CONTROL_TOKEN_END
-    markers_re = re.compile(f"{start}({control_tokens_re.pattern}){end}|[{start}{end}]")
+    start_forms = (start, ascii(start)[1:-1])
+    end_forms = (end, ascii(end)[1:-1])
+    start_re = "|".join(map(re.escape, start_forms))
+    end_re = "|".join(map(re.escape, end_forms))
+    marker_forms_re = "|".join(map(re.escape, (*start_forms, *end_forms)))
+    markers_re = re.compile(f"(?:{start_re})({control_tokens_re.pattern})(?:{end_re})|{marker_forms_re}")
     return control_tokens_re, markers_re
 
 
