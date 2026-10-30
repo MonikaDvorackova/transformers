@@ -513,8 +513,8 @@ class TokenizerUtilsTest(unittest.TestCase):
         )
         self.assertEqual(repr_encoded.count(eos), 1)
         decoded = tokenizer.decode(repr_encoded)
-        self.assertNotIn(r"\\U000f0000", decoded)
-        self.assertNotIn(r"\\U000f0001", decoded)
+        self.assertNotIn(r"\U000f0000", decoded)
+        self.assertNotIn(r"\U000f0001", decoded)
 
     @require_tokenizers
     def test_special_tokens_overwrite(self):
